@@ -35,6 +35,12 @@ jobs:
           name: MoazDownloader-Android
           path: bin/*.apk
 
+      - name: Create GitHub Release and Upload Asset
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.apk
+
   build-linux:
     name: Build on Linux
     runs-on: ubuntu-latest
@@ -60,6 +66,12 @@ jobs:
         with:
           name: MoazDownloader-Linux
           path: dist/MoazDownloader
+
+      - name: Create GitHub Release and Upload Asset
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/MoazDownloader
 
   build-macos:
     name: Build on macOS
@@ -90,39 +102,8 @@ jobs:
           name: MoazDownloader-macOS
           path: dist/MoazDownloader-macOS.zip
 
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    if: always()
-    needs: [build-android, build-linux, build-macos]
-    steps:
-      - name: Download Android Artifact
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: MoazDownloader-Android
-          path: ./release/android
-
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: MoazDownloader-Linux
-          path: ./release/linux
-
-      - name: Download macOS Artifact
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: MoazDownloader-macOS
-          path: ./release/macos
-
-      - name: Create GitHub Release and Upload Assets
+      - name: Create GitHub Release and Upload Asset
+        if: success()
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            release/android/*.apk
-            release/linux/MoazDownloader
-            release/macos/MoazDownloader-macOS.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          files: dist/MoazDownloader-macOS.zip 
