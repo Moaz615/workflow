@@ -5,11 +5,13 @@ package.domain = org.moaz.downloader
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ico
 version = 1.0
-requirements = python3,kivy,hostpython3,openssl,yt-dlp,plyer,pillow
+requirements = python3,kivy,hostpython3,openssl,yt-dlp,plyer,pillow,certifi
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 android.minapi = 21
+android.api = 31
+android.ndk = 25b
 android.icon = moaz.png
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
