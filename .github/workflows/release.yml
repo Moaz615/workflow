@@ -1,0 +1,120 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: .
+          build_command: buildozer -v android debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-Android
+          path: bin/*.apk
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install kivy yt-dlp plyer pyinstaller
+
+      - name: Build Executable
+        run: pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" --icon "moaz.ico" --add-data "ffmpeg.exe;." test1.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-Windows
+          path: dist/MoazDownloader.exe
+
+  build-macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install kivy yt-dlp plyer pyinstaller
+
+      - name: Build Executable
+        run: pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" --icon "moaz.ico" test1.py
+
+      - name: Zip the .app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/MoazDownloader.app dist/MoazDownloader-macOS.zip
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-macOS
+          path: dist/MoazDownloader-macOS.zip
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows, build-macos]
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MoazDownloader-Android
+          path: ./release/android
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MoazDownloader-Windows
+          path: ./release/windows
+
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MoazDownloader-macOS
+          path: ./release/macos
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/android/*.apk
+            release/windows/MoazDownloader.exe
+            release/macos/MoazDownloader-macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

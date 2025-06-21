@@ -1,0 +1,83 @@
+name: Build Application
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    name: Build Android APK
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: .
+          build_command: buildozer -v android debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-Android
+          path: ${{ steps.buildozer.outputs.filename }}
+
+  build-macos:
+    runs-on: macos-latest
+    name: Build macOS App
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install pyinstaller kivy
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" --icon "moaz.ico" test1.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-macOS
+          path: dist/MoazDownloader.app
+
+  build-windows:
+    runs-on: windows-latest
+    name: Build Windows EXE
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install pyinstaller kivy
+
+      - name: Build with PyInstaller
+        run: |
+          pip install pyinstaller
+          pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" --icon "moaz.ico" --add-data "ffmpeg.exe;." test1.py
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoazDownloader-Windows
+          path: dist/MoazDownloader.exe 
