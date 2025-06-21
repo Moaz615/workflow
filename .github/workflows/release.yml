@@ -12,6 +12,7 @@ jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +38,7 @@ jobs:
   build-linux:
     name: Build on Linux
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +64,7 @@ jobs:
   build-macos:
     name: Build on macOS
     runs-on: macos-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -90,22 +93,26 @@ jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    if: always()
     needs: [build-android, build-linux, build-macos]
     steps:
       - name: Download Android Artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: MoazDownloader-Android
           path: ./release/android
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: MoazDownloader-Linux
           path: ./release/linux
 
       - name: Download macOS Artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: MoazDownloader-macOS
           path: ./release/macos
