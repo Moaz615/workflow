@@ -75,7 +75,7 @@ jobs:
           pip install kivy yt-dlp plyer pyinstaller
 
       - name: Build Executable
-        run: pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" --icon "moaz.ico" test1.py
+        run: pyinstaller --noconfirm --onefile --windowed --name "MoazDownloader" test1.py
 
       - name: Zip the .app
         run: ditto -c -k --sequesterRsrc --keepParent dist/MoazDownloader.app dist/MoazDownloader-macOS.zip
